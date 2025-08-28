@@ -1,3 +1,4 @@
+# Here’s a simple working Streamlit UI that connects to the FastAPI API
 # Features:
 # Simple chat-like controls for patching tasks.
 # Calls the FastAPI backend endpoints (/run, /status, /finalize).
