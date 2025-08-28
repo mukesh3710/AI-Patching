@@ -1,10 +1,10 @@
 # AI Agent for Automated Linux Patching
 ---
 ###  Overview
-This document outlines a proposal to develop an AI-powered chatbot designed to automate and streamline Linux OS patching operations. The agent will leverage our existing infrastructure and integrate with the Red Hat Ansible Automation Platform (AAP) to provide intelligent, automated support. This proof-of-concept (PoC) will be deployed on OpenShift, utilizing a microservices architecture for scalability and flexibility.
+- This document outlines a proposal to develop an AI-powered chatbot designed to automate and streamline Linux OS patching operations. The agent will leverage our existing infrastructure and integrate with the Red Hat Ansible Automation Platform (AAP) to provide intelligent, automated support. This proof-of-concept (PoC) will be deployed on OpenShift, utilizing a microservices architecture for scalability and flexibility.
 ---
 ### Key Functionality
-The AI agent will simplify the patching workflow by handling key tasks and providing a user-friendly interface.
+- The AI agent will simplify the patching workflow by handling key tasks and providing a user-friendly interface.
 
 Core Operations: 
 - Pre-Patching Validation: The agent will execute a pre-check playbook to ensure target hosts are ready for patching.
