@@ -1,5 +1,6 @@
 ###
-Awesome—this is a perfect use-case for SNO + AAP. Below is a practical, end-to-end plan (no code) that gets you from “job runs in AAP” → “live status on a web UI,” while keeping AAP’s internal DB intact and streaming events to an external database in real time.
+---
+this is a perfect use-case for SNO + AAP. Below is a practical, end-to-end plan (no code) that gets you from “job runs in AAP” → “live status on a web UI,” while keeping AAP’s internal DB intact and streaming events to an external database in real time.
 ------
 Architecture at a glance
 
