@@ -4,7 +4,7 @@
 - The following sections outline our plans for extending this proof of concept (POC) into a full-fledged solution. These features are not part of the initial POC scope and will be implemented in later phases.
 ---
 ### Brief Idea Explanation:
-- TThe proposed solution is an Agentic AI-powered automation platform that orchestrates Linux patching and compliance activities using intelligent decision-making and natural language interaction. Unlike conventional automation workflows, this system introduces an AI-driven chatbot interface combined with autonomous orchestration to handle complex operational tasks across large-scale enterprise environments.
+- The proposed solution is an Agentic AI-powered automation platform that orchestrates Linux patching and compliance activities using intelligent decision-making and natural language interaction. Unlike conventional automation workflows, this system introduces an AI-driven chatbot interface combined with autonomous orchestration to handle complex operational tasks across large-scale enterprise environments.
 - The system will act as an AI-driven operational agent capable of performing pre-checks, patching, reboot, post-checks, and error remediation. It ensures zero-touch operations for maintenance windows and reduces human intervention in repetitive, error-prone tasks.
 - Natural Language Interaction: Users interact with the chatbot through a conversational interface, requesting patching or verification tasks using simple language (e.g., “Patch all servers in Group 1 ” or “Run pre-checks for these hosts”).
 ---
