@@ -24,6 +24,7 @@ Web app: Backend service (REST + WebSocket/SSE) + lightweight UI, both on OpenSh
 
 Optional scale-up: Kafka/AMQ Streams between AAP and DB for buffering at scale.
 
+------
 End-to-end workflow (data flow)
 
 Job runs in AAP using your custom EE.
@@ -38,7 +39,10 @@ Your EE’s callback plugin posts events to an Ingest API service which writes t
 
 Web app subscribes to DB updates (e.g., MongoDB Change Streams) and shows live job status, host-level results, and event details.
 
+---
 Step-by-step plan
+---
+
 0) Prereqs on SNO
 
 Working SNO with:
@@ -51,6 +55,7 @@ Ingress/Route available (for AAP UI, web app UI, and ingestion endpoints).
 
 Access: oc/kubectl, cluster-admin, and AAP subscription entitlements.
 
+---
 1) Install AAP on OpenShift
 
 In OperatorHub, install the Ansible Automation Platform Operator.
@@ -63,6 +68,7 @@ A route to the AAP UI is created and reachable.
 
 Validate you can log into AAP, add a test Project, Inventory, and run a trivial Job Template with a default EE.
 
+---
 2) Build & register your custom EE
 
 Define an execution-environment spec that includes:
@@ -77,6 +83,7 @@ Build with ansible-builder (on your workstation or a CI runner), push the image 
 
 In AAP UI → Execution Environments, register the image and set it on your Job Templates as default.
 
+---
 3) Stand up the external database
 
 Choose one path (MongoDB is the MVP recommendation):
@@ -95,6 +102,7 @@ PostgreSQL/Timescale (Alt): Similar steps; configure appropriate schemas and ind
 
 Elasticsearch/OpenSearch (Alt): Deploy Operator or Helm; create index templates and ILM policies; ingest via Logstash/Fluent Bit (see next step).
 
+---
 4) Choose and deploy the real-time ingestion path
 
 Pick A (no app code) or B (more control). Keep C as fallback.
@@ -147,6 +155,7 @@ The web backend periodically polls AAP’s /api/v2/jobs/ and /api/v2/jobs/{id}/e
 
 Simpler to start, but less “real-time” and adds API load. Good as a minimal fallback.
 
+---
 5) Web app (backend + UI) on OpenShift
 
 Backend service (containerized) that:
@@ -169,6 +178,7 @@ Filters: by template, inventory, status, owner, date range; quick search.
 
 Expose via Service + Route. Store secrets for DB and (if used) Kafka/Redis in K8s Secrets. Lock down with NetworkPolicies.
 
+---
 6) Wire it all together (first working slice)
 
 Confirm AAP jobs run with the custom EE.
@@ -184,6 +194,8 @@ External DB receives events in near real-time.
 Web app shows the new job and live updates.
 
 Validate out-of-order and retry behavior (net hiccups, restarts).
+
+---
 
 7) Suggested external DB data model & indexing (MongoDB example)
 
@@ -207,6 +219,7 @@ Indexes: { job_id: 1, host: 1 }.
 
 Retention: TTL index on events to auto-expire raw events after N days while keeping jobs summaries.
 
+---
 8) Security, governance, and SRE bits
 
 TLS everywhere: Routes with re-encrypt; AAP external logging over TLS if supported by your collector; callback HTTPS for option B.
@@ -235,6 +248,7 @@ Backups: DB snapshots via Operator; AAP config export (Organizations, Templates,
 
 Retention & cleanup: CronJobs to compact/expire events; keep jobs summaries long-term.
 
+---
 9) Milestone checklist (use this to track progress)
 
 SNO ready (storage, registry, routes).
@@ -256,6 +270,8 @@ Security (TLS/Secrets/NetworkPolicies) locked down.
 Retention/backup strategy in place.
 
 Run real workloads; tune indexing and resource requests.
+
+---
 
 Bill of materials (components you’ll need)
 
