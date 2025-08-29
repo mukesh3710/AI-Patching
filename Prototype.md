@@ -64,4 +64,4 @@
   - Use Services to expose each application component within the cluster.
 - Exposing Services:
   - Create Routes for the FastAPI backend and the Streamlit frontend to make them accessible from outside the cluster.
-  - Create a separate Route for the Knowledge Base UI so you can access it to add new errors and solutions. This is how you make it.
+  - Create a separate Route for the Knowledge Base UI so you can access it to add new errors and solutions.
