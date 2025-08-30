@@ -1,76 +1,44 @@
-###
----
-this is a perfect use-case for SNO + AAP. Below is a practical, end-to-end plan (no code) that gets you from “job runs in AAP” → “live status on a web UI,” while keeping AAP’s internal DB intact and streaming events to an external database in real time.
+### Agentic AI
+- Use-case for SNO + AAP. Below is a practical, end-to-end plan that gets you from “job runs in AAP” → “live status on a web UI,” while keeping AAP’s internal DB intact and streaming events to an external database in real time.
 ------
-Architecture at a glance
-
-Platform: Single-Node OpenShift (SNO) with a StorageClass available and the internal OpenShift image registry enabled.
-
-Automation: AAP Controller (via Operator) + your custom Execution Environment (EE) image.
-
-Internal DB: AAP’s PostgreSQL (managed by the operator or external—unchanged).
-
-External DB (choose one):
-MVP: MongoDB (great for real-time with Change Streams).
-Alt: PostgreSQL/Timescale (relational, LISTEN/NOTIFY).
-Alt: Elasticsearch/OpenSearch (fast search & dashboards).
-
-Ingestion path (pick one):
+#### Architecture at a glance
+- Platform: Single-Node OpenShift (SNO) with a StorageClass available and the internal OpenShift image registry enabled.
+- Automation: AAP Controller (via Operator) + your custom Execution Environment (EE) image.
+- Internal DB: AAP’s PostgreSQL (managed by the operator or external—unchanged).
+- External DB MVP: MongoDB (great for real-time with Change Streams).
+- Ingestion path (pick one):
 A. External Logging from AAP → Fluent Bit/Logstash → DB (no app code).
 B. Ansible callback plugin (HTTP/Logstash) in your EE → tiny “Ingest API” → DB (more control).
 C. Poll AAP API for /jobs + /events (simplest, not true push).
-
-Web app: Backend service (REST + WebSocket/SSE) + lightweight UI, both on OpenShift.
-
-Optional scale-up: Kafka/AMQ Streams between AAP and DB for buffering at scale.
+- Web app: Backend service (REST + WebSocket/SSE) + lightweight UI, both on OpenShift.
+- Optional scale-up: Kafka/AMQ Streams between AAP and DB for buffering at scale.
 
 ------
-End-to-end workflow (data flow)
-
-Job runs in AAP using your custom EE.
-
-Internal persistence: AAP writes job + event records to its internal Postgres (unchanged behavior).
-
-Real-time stream to external DB:
-
-Either AAP’s External Logging forwards structured job events to a collector (Fluent Bit/Logstash), which writes to the external DB, or
-
-Your EE’s callback plugin posts events to an Ingest API service which writes to the DB.
-
-Web app subscribes to DB updates (e.g., MongoDB Change Streams) and shows live job status, host-level results, and event details.
+#### End-to-end workflow (data flow)
+- Job runs in AAP using your custom EE.
+- Internal persistence: AAP writes job + event records to its internal Postgres (unchanged behavior).
+- Real-time stream to external DB:
+- Either AAP’s External Logging forwards structured job events to a collector (Fluent Bit/Logstash), which writes to the external DB, or
+- Your EE’s callback plugin posts events to an Ingest API service which writes to the DB.
+- Web app subscribes to DB updates (e.g., MongoDB Change Streams) and shows live job status, host-level results, and event details.
 
 ---
 Step-by-step plan
 ---
-
-0) Prereqs on SNO
-
-Working SNO with:
-
-Default StorageClass and persistent storage.
-
-OpenShift Internal Registry enabled (for your EE image).
-
-Ingress/Route available (for AAP UI, web app UI, and ingestion endpoints).
-
-Access: oc/kubectl, cluster-admin, and AAP subscription entitlements.
-
+### Prereqs on SNO
+- Default StorageClass and persistent storage.
+- OpenShift Internal Registry enabled (for your EE image).
+- Ingress/Route available (for AAP UI, web app UI, and ingestion endpoints).
+- Access: oc/kubectl, cluster-admin, and AAP subscription entitlements.
 ---
-1) Install AAP on OpenShift
-
-In OperatorHub, install the Ansible Automation Platform Operator.
-
-Create the AAP Controller instance (namespace like aap), ensuring:
-
-Controller’s PostgreSQL is provisioned (operator-managed or external).
-
-A route to the AAP UI is created and reachable.
-
-Validate you can log into AAP, add a test Project, Inventory, and run a trivial Job Template with a default EE.
-
+### Install AAP on OpenShift
+- In OperatorHub, install the Ansible Automation Platform Operator.
+- Create the AAP Controller instance (namespace like aap), ensuring:
+- Controller’s PostgreSQL is provisioned (operator-managed or external).
+- A route to the AAP UI is created and reachable.
+- Validate you can log into AAP, add a test Project, Inventory, and run a trivial Job Template with a default EE.
 ---
-2) Build & register your custom EE
-
+### Build & register your custom EE
 Define an execution-environment spec that includes:
 
 Collections you need (your usual automation stack).
@@ -84,26 +52,15 @@ Build with ansible-builder (on your workstation or a CI runner), push the image 
 In AAP UI → Execution Environments, register the image and set it on your Job Templates as default.
 
 ---
-3) Stand up the external database
-
-Choose one path (MongoDB is the MVP recommendation):
-
-MongoDB (MVP):
-
-Install the MongoDB/K8s Operator (Community or Enterprise) and create a StatefulSet with persistent volumes.
-
-Create a DB (automation) and collections: jobs, events, and optionally hosts.
-
-Create a DB user/secret and NetworkPolicy to limit access to your ingestion and webapp pods.
-
-Plan indexes (examples in §7).
-
-PostgreSQL/Timescale (Alt): Similar steps; configure appropriate schemas and indexes. Consider triggers to update aggregate job docs and LISTEN/NOTIFY for real-time.
-
-Elasticsearch/OpenSearch (Alt): Deploy Operator or Helm; create index templates and ILM policies; ingest via Logstash/Fluent Bit (see next step).
+### Stand up the external database
+- MongoDB (MVP):
+- Install the MongoDB/K8s Operator (Community or Enterprise) and create a StatefulSet with persistent volumes.
+- Create a DB (automation) and collections: jobs, events, and optionally hosts.
+- Create a DB user/secret and NetworkPolicy to limit access to your ingestion and webapp pods.
+- Plan indexes (examples in #7).
 
 ---
-4) Choose and deploy the real-time ingestion path
+### Choose and deploy the real-time ingestion path
 
 Pick A (no app code) or B (more control). Keep C as fallback.
 
